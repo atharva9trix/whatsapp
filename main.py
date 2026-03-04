@@ -69,15 +69,64 @@
 
 #     print("Send message response:", r.text)
 
+# from fastapi import FastAPI, Request
+# import requests
+# import os
+
+# app = FastAPI()
+
+# # EVOLUTION_API = os.getenv("https://whatsapp-1-evolution-api.n0r6ff.easypanel.host")
+# # API_KEY = os.getenv("5D0A84B47ED9-42A1-B2D2-DF565E539746")
+# # INSTANCE = os.getenv("whatsappbot")
+
+# EVOLUTION_URL = "https://whatsapp-1-evolution-api.n0r6ff.easypanel.host"
+# INSTANCE = "whatsappbot"
+# API_KEY = "5D0A84B47ED9-42A1-B2D2-DF565E539746"
+
+
+# @app.post("/webhook")
+# async def webhook(request: Request):
+#     payload = await request.json()
+
+#     try:
+#         message = payload["data"]["message"]["conversation"].lower()
+#         number = payload["data"]["key"]["remoteJid"].split("@")[0]
+#     except Exception as e:
+#         return {"ignored": True}
+
+#     reply = "👋 Hi!\n1️⃣ Book appointment\n2️⃣ Help"
+
+#     if "hi" in message or "hello" in message:
+#         reply = "👋 Hello! What would you like to do?\n1️⃣ Book appointment\n2️⃣ Help"
+
+#     if "help" in message:
+#         reply = "ℹ️ I can help you book appointments via WhatsApp."
+
+#     send_message(number, reply)
+#     return {"status": "sent"}
+
+
+# def send_message(number, text):
+#     url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE}"
+#     headers = {
+#         # "apikey": API_KEY,
+#         "apikey": EVOLUTION_URL,
+#         "Content-Type": "application/json"
+#     }
+#     data = {
+#         "number": number,
+#         "text": text
+#     }
+#     requests.post(url, json=data, headers=headers)
+
+
+
+
+
 from fastapi import FastAPI, Request
 import requests
-import os
 
 app = FastAPI()
-
-# EVOLUTION_API = os.getenv("https://whatsapp-1-evolution-api.n0r6ff.easypanel.host")
-# API_KEY = os.getenv("5D0A84B47ED9-42A1-B2D2-DF565E539746")
-# INSTANCE = os.getenv("whatsappbot")
 
 EVOLUTION_URL = "https://whatsapp-1-evolution-api.n0r6ff.easypanel.host"
 INSTANCE = "whatsappbot"
@@ -86,12 +135,30 @@ API_KEY = "5D0A84B47ED9-42A1-B2D2-DF565E539746"
 
 @app.post("/webhook")
 async def webhook(request: Request):
+
     payload = await request.json()
 
     try:
-        message = payload["data"]["message"]["conversation"].lower()
+
+        # ignore bot messages
+        if payload["data"]["key"]["fromMe"]:
+            return {"ignored": True}
+
         number = payload["data"]["key"]["remoteJid"].split("@")[0]
-    except Exception as e:
+
+        msg = payload.get("data", {}).get("message", {})
+
+        message = (
+            msg.get("conversation")
+            or msg.get("extendedTextMessage", {}).get("text")
+        )
+
+        if not message:
+            return {"ignored": True}
+
+        message = message.lower()
+
+    except Exception:
         return {"ignored": True}
 
     reply = "👋 Hi!\n1️⃣ Book appointment\n2️⃣ Help"
@@ -103,18 +170,24 @@ async def webhook(request: Request):
         reply = "ℹ️ I can help you book appointments via WhatsApp."
 
     send_message(number, reply)
+
     return {"status": "sent"}
 
 
 def send_message(number, text):
+
     url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE}"
+
     headers = {
-        # "apikey": API_KEY,
-        "apikey": EVOLUTION_URL,
+        "apikey": API_KEY,
         "Content-Type": "application/json"
     }
+
     data = {
         "number": number,
         "text": text
     }
-    requests.post(url, json=data, headers=headers)
+
+    r = requests.post(url, json=data, headers=headers)
+
+    print("Response:", r.text)
