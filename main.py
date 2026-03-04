@@ -121,6 +121,7 @@
 
 from fastapi import FastAPI, Request
 import requests
+import json
 
 app = FastAPI()
 
@@ -185,6 +186,7 @@ def home():
 async def webhook(request: Request):
 
     body = await request.body()
+    data = json.loads(body.decode())
 
     if not body:
         print("Empty webhook received")
