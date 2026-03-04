@@ -13,35 +13,44 @@ def home():
     return {"status": "running"}
 
 
+# @app.post("/webhook")
+# async def webhook(request: Request):
+
+#     data = await request.json()
+#     print("Webhook received:", data)
+
+#     try:
+
+#         # Process only incoming messages
+#         if data.get("event") != "messages.upsert":
+#             return {"status": "ignored"}
+
+#         message_data = data.get("data", {})
+
+#         number = message_data["key"]["remoteJid"].replace("@s.whatsapp.net", "")
+
+#         msg = message_data.get("message", {})
+
+#         message = (
+#             msg.get("conversation")
+#             or msg.get("extendedTextMessage", {}).get("text")
+#         )
+
+#         print("Incoming message:", message)
+
+#         send_message(number, "Hello 👋 I am your bot")
+
+#     except Exception as e:
+#         print("Error:", e)
+
+#     return {"status": "received"}
+
 @app.post("/webhook")
 async def webhook(request: Request):
 
     data = await request.json()
-    print("Webhook received:", data)
 
-    try:
-
-        # Process only incoming messages
-        if data.get("event") != "messages.upsert":
-            return {"status": "ignored"}
-
-        message_data = data.get("data", {})
-
-        number = message_data["key"]["remoteJid"].replace("@s.whatsapp.net", "")
-
-        msg = message_data.get("message", {})
-
-        message = (
-            msg.get("conversation")
-            or msg.get("extendedTextMessage", {}).get("text")
-        )
-
-        print("Incoming message:", message)
-
-        send_message(number, "Hello 👋 I am your bot")
-
-    except Exception as e:
-        print("Error:", e)
+    print("FULL WEBHOOK DATA:", data)
 
     return {"status": "received"}
 
