@@ -17,13 +17,17 @@ def home():
 async def webhook(request: Request):
 
     data = await request.json()
-    print(data)
+    print("Webhook received:", data)
 
     try:
         number = data["data"]["key"]["remoteJid"].replace("@s.whatsapp.net", "")
 
-        message = data["data"]["message"].get("conversation") or \
-                  data["data"]["message"]["extendedTextMessage"]["text"]
+        message = (
+            data["data"]["message"].get("conversation")
+            or data["data"]["message"].get("extendedTextMessage", {}).get("text")
+        )
+
+        print("Incoming message:", message)
 
         send_message(number, "Hello 👋 I am your bot")
 
@@ -46,21 +50,6 @@ def send_message(number, text):
         "apikey": API_KEY
     }
 
-    requests.post(url, json=payload, headers=headers)
+    r = requests.post(url, json=payload, headers=headers)
 
-# from fastapi import FastAPI, Request
-# import requests
-
-# app = FastAPI()
-
-# @app.api_route("/webhook", methods=["GET","POST"])
-# async def webhook(request: Request):
-
-#     if request.method == "GET":
-#         return {"status": "webhook alive"}
-
-#     data = await request.json()
-
-#     print("WEBHOOK RECEIVED:", data)
-
-#     return {"status": "received"}
+    print("Send message response:", r.text)
