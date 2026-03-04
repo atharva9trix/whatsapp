@@ -20,11 +20,20 @@ async def webhook(request: Request):
     print("Webhook received:", data)
 
     try:
-        number = data["data"]["key"]["remoteJid"].replace("@s.whatsapp.net", "")
+
+        # Process only incoming messages
+        if data.get("event") != "messages.upsert":
+            return {"status": "ignored"}
+
+        message_data = data.get("data", {})
+
+        number = message_data["key"]["remoteJid"].replace("@s.whatsapp.net", "")
+
+        msg = message_data.get("message", {})
 
         message = (
-            data["data"]["message"].get("conversation")
-            or data["data"]["message"].get("extendedTextMessage", {}).get("text")
+            msg.get("conversation")
+            or msg.get("extendedTextMessage", {}).get("text")
         )
 
         print("Incoming message:", message)
