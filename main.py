@@ -44,7 +44,7 @@ async def webhook(request: Request):
     except Exception as e:
         print("Error:", e)
 
-    return {"status": "received"}
+        return {"status": f"failed {e}"}
 
 # @app.post("/webhook")
 # async def webhook(request: Request):
