@@ -186,20 +186,41 @@ def home():
 async def webhook(request: Request):
 
     body = await request.body()
-    data = json.loads(body.decode())
 
+    # Ignore empty webhook
     if not body:
         print("Empty webhook received")
-        return {"status": "empty"}
+        return {"status": "ignored"}
 
     try:
-        data = json.loads(body)
-        print("Webhook data:", data)
-    except Exception as e:
+        data = json.loads(body.decode())
+    except Exception:
         print("Invalid JSON:", body)
-        return {"status": "invalid json"}
+        return {"status": "ignored"}
 
-    return {"status": "received"}
+    print("Webhook data:", data)
+
+    if data.get("event") != "messages.upsert":
+        return {"status": "ignored"}
+
+    try:
+        if data["data"]["key"]["fromMe"]:
+            return {"status": "ignored"}
+
+        number = data["data"]["key"]["remoteJid"].split("@")[0]
+        message = data["data"]["message"].get("conversation")
+
+        print("Incoming message:", message)
+
+    except Exception as e:
+        print("Parse error:", e)
+        return {"status": "ignored"}
+
+    reply = "👋 Hello! I received your message."
+
+    send_message(number, reply)
+
+    return {"status": "sent"}
  
 
 
