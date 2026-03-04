@@ -137,49 +137,53 @@ def home():
 @app.post("/webhook")
 async def webhook(request: Request):
 
-    payload = await request.json()
+    # payload = await request.json()
 
-    print("Webhook payload:", payload)
+    # print("Webhook payload:", payload)
 
-    if payload.get("event") != "messages.upsert":
-        return {"ignored": True}
+    # if payload.get("event") != "messages.upsert":
+    #     return {"ignored": True}
 
-    try:
+    # try:
 
-        if payload["data"]["key"]["fromMe"]:
-            return {"ignored": True}
+    #     if payload["data"]["key"]["fromMe"]:
+    #         return {"ignored": True}
 
-        number = payload["data"]["key"]["remoteJid"].split("@")[0]
+    #     number = payload["data"]["key"]["remoteJid"].split("@")[0]
 
-        msg = payload.get("data", {}).get("message", {})
+    #     msg = payload.get("data", {}).get("message", {})
 
-        message = (
-            msg.get("conversation")
-            or msg.get("extendedTextMessage", {}).get("text")
-        )
+    #     message = (
+    #         msg.get("conversation")
+    #         or msg.get("extendedTextMessage", {}).get("text")
+    #     )
 
-        if not message:
-            return {"ignored": True}
+    #     if not message:
+    #         return {"ignored": True}
 
-        message = message.lower()
+    #     message = message.lower()
 
-        print("Incoming message:", message)
+    #     print("Incoming message:", message)
 
-    except Exception as e:
-        print("Error:", e)
-        return {"ignored": True}
+    # except Exception as e:
+    #     print("Error:", e)
+    #     return {"ignored": True}
 
-    reply = "👋 Hi!\n1️⃣ Book appointment\n2️⃣ Help"
+    # reply = "👋 Hi!\n1️⃣ Book appointment\n2️⃣ Help"
 
-    if "hi" in message or "hello" in message:
-        reply = "👋 Hello! What would you like to do?\n1️⃣ Book appointment\n2️⃣ Help"
+    # if "hi" in message or "hello" in message:
+    #     reply = "👋 Hello! What would you like to do?\n1️⃣ Book appointment\n2️⃣ Help"
 
-    if "help" in message:
-        reply = "ℹ️ I can help you book appointments via WhatsApp."
+    # if "help" in message:
+    #     reply = "ℹ️ I can help you book appointments via WhatsApp."
 
-    send_message(number, reply)
+    # send_message(number, reply)
 
-    return {"status": "sent"}
+    # return {"status": "sent"}
+
+    data = await request.json()
+    print(data)
+    return {"status": "received"}
 
 
 def send_message(number, text):
