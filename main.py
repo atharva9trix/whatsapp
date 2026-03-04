@@ -107,7 +107,7 @@ async def webhook(request: Request):
 
 
 def send_message(number, text):
-    url = f"{EVOLUTION_API}/message/sendText/{INSTANCE}"
+    url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE}"
     headers = {
         "apikey": API_KEY,
         "Content-Type": "application/json"
