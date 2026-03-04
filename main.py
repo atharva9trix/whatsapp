@@ -119,10 +119,6 @@
 #     }
 #     requests.post(url, json=data, headers=headers)
 
-
-
-
-
 from fastapi import FastAPI, Request
 import requests
 
@@ -133,14 +129,23 @@ INSTANCE = "whatsappbot"
 API_KEY = "5D0A84B47ED9-42A1-B2D2-DF565E539746"
 
 
+@app.get("/")
+def home():
+    return {"status": "bot running"}
+
+
 @app.post("/webhook")
 async def webhook(request: Request):
 
     payload = await request.json()
 
+    print("Webhook payload:", payload)
+
+    if payload.get("event") != "messages.upsert":
+        return {"ignored": True}
+
     try:
 
-        # ignore bot messages
         if payload["data"]["key"]["fromMe"]:
             return {"ignored": True}
 
@@ -158,7 +163,10 @@ async def webhook(request: Request):
 
         message = message.lower()
 
-    except Exception:
+        print("Incoming message:", message)
+
+    except Exception as e:
+        print("Error:", e)
         return {"ignored": True}
 
     reply = "👋 Hi!\n1️⃣ Book appointment\n2️⃣ Help"
