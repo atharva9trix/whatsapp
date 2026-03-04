@@ -19,6 +19,6 @@ WORKDIR /app
 
 RUN pip install fastapi uvicorn requests
 
-COPY bot.py .
+COPY main.py .
 
 CMD ["uvicorn", "bot:app", "--host", "0.0.0.0", "--port", "9000"]
