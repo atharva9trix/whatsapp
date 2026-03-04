@@ -1,20 +1,11 @@
 from fastapi import FastAPI, Request
+import requests
 
 app = FastAPI()
 
-# @app.get("/")
-# def home():
-#     return {"status": "running"}
-
-# @app.post("/webhook")
-# async def webhook(request: Request):
-#     data = await request.json()
-#     print(data)
-#     return {"status": "received"}
-
-EVOLUTION_URL = "https://whatsapp-1-evolution-api.n0r6ff.easypanel.host/manager"
-INSTANCE = "Demo1"
-API_KEY = "7D3A3FE318B8-4F2D-AB6A-FCC54686DF98"
+EVOLUTION_URL = "https://whatsapp-1-evolution-api.n0r6ff.easypanel.host"
+INSTANCE = "whatsappbot"
+API_KEY = "5D0A84B47ED9-42A1-B2D2-DF565E539746"
 
 
 @app.get("/")
@@ -30,12 +21,14 @@ async def webhook(request: Request):
 
     try:
         number = data["data"]["key"]["remoteJid"].replace("@s.whatsapp.net", "")
-        message = data["data"]["message"]["conversation"]
+
+        message = data["data"]["message"].get("conversation") or \
+                  data["data"]["message"]["extendedTextMessage"]["text"]
 
         send_message(number, "Hello 👋 I am your bot")
 
-    except:
-        pass
+    except Exception as e:
+        print("Error:", e)
 
     return {"status": "received"}
 
