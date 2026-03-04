@@ -134,8 +134,8 @@ def home():
     return {"status": "bot running"}
 
 
-@app.post("/webhook")
-async def webhook(request: Request):
+# @app.post("/webhook")
+# async def webhook(request: Request):
 
     # payload = await request.json()
 
@@ -181,7 +181,10 @@ async def webhook(request: Request):
 
     # return {"status": "sent"}
 
- body = await request.body()
+@app.post("/webhook")
+async def webhook(request: Request):
+
+    body = await request.body()
 
     if not body:
         print("Empty webhook received")
@@ -195,6 +198,7 @@ async def webhook(request: Request):
         return {"status": "invalid json"}
 
     return {"status": "received"}
+ 
 
 
 def send_message(number, text):
