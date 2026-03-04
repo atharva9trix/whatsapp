@@ -39,6 +39,7 @@ async def webhook(request: Request):
         print("Incoming message:", message)
 
         send_message(number, "Hello 👋 I am your bot")
+        return "Hello 👋 I am your bot"
 
     except Exception as e:
         print("Error:", e)
