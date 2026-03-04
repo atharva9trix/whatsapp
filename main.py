@@ -72,3 +72,6 @@ def send_message(number, text):
     r = requests.post(url, json=payload, headers=headers)
 
     print("Send message response:", r.text)
+
+if __name__=="__main__";
+    app.run(host="0.0.0.0",port=9000)
