@@ -187,38 +187,35 @@ async def webhook(request: Request):
 
     body = await request.body()
 
-    # Ignore empty webhook
     if not body:
-        print("Empty webhook received")
+        print("❌ Empty webhook received")
         return {"status": "ignored"}
 
     try:
         data = json.loads(body.decode())
     except Exception:
-        print("Invalid JSON:", body)
+        print("❌ Invalid JSON:", body)
         return {"status": "ignored"}
 
-    print("Webhook data:", data)
+    print("✅ Webhook data:", data)
 
     if data.get("event") != "messages.upsert":
+        print("❌ Not a message event")
         return {"status": "ignored"}
 
-    try:
-        if data["data"]["key"]["fromMe"]:
-            return {"status": "ignored"}
-
-        number = data["data"]["key"]["remoteJid"].split("@")[0]
-        message = data["data"]["message"].get("conversation")
-
-        print("Incoming message:", message)
-
-    except Exception as e:
-        print("Parse error:", e)
+    if data["data"]["key"]["fromMe"]:
+        print("❌ Message from bot itself")
         return {"status": "ignored"}
 
-    reply = "👋 Hello! I received your message."
+    number = data["data"]["key"]["remoteJid"].split("@")[0]
+    message = data["data"]["message"].get("conversation")
 
-    send_message(number, reply)
+    print("📩 Incoming message:", message)
+    print("📞 Sender:", number)
+
+    send_message(number, "Hello 👋 I received your message")
+
+    print("✅ Reply function called")
 
     return {"status": "sent"}
  
@@ -233,11 +230,16 @@ def send_message(number, text):
         "Content-Type": "application/json"
     }
 
-    data = {
+    payload = {
         "number": number,
-        "text": text
+        "textMessage": {
+            "text": text
+        }
     }
 
-    r = requests.post(url, json=data, headers=headers)
+    print("🚀 Sending request to Evolution API")
 
-    print("Response:", r.text)
+    r = requests.post(url, json=payload, headers=headers)
+
+    print("📡 Status:", r.status_code)
+    print("📡 Response:", r.text)
