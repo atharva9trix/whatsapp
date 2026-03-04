@@ -21,11 +21,14 @@ async def webhook(request: Request):
 
     try:
 
-        # Process only incoming messages
         if data.get("event") != "messages.upsert":
             return {"status": "ignored"}
 
         message_data = data.get("data", {})
+
+        # ignore messages sent by bot
+        if message_data.get("key", {}).get("fromMe"):
+            return {"status": "self message ignored"}
 
         number = message_data["key"]["remoteJid"].replace("@s.whatsapp.net", "")
 
@@ -38,22 +41,14 @@ async def webhook(request: Request):
 
         print("Incoming message:", message)
 
-        send_message(number, "Hello 👋 I am your bot")
-        return "Hello 👋 I am your bot"
+        if message:
+            send_message(number, "Hello 👋 I am your bot")
+
+        return {"status": "ok"}
 
     except Exception as e:
         print("Error:", e)
-
         return {"status": f"failed {e}"}
-
-# @app.post("/webhook")
-# async def webhook(request: Request):
-
-#     data = await request.json()
-
-#     print("FULL WEBHOOK DATA:", data)
-
-#     return {"status": "received"}
 
 
 def send_message(number, text):
@@ -66,12 +61,10 @@ def send_message(number, text):
     }
 
     headers = {
-        "apikey": API_KEY
+        "apikey": API_KEY,
+        "Content-Type": "application/json"
     }
 
     r = requests.post(url, json=payload, headers=headers)
 
     print("Send message response:", r.text)
-
-if __name__=="__main__":
-    app.run(host="0.0.0.0",port=9000)
