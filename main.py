@@ -181,8 +181,19 @@ async def webhook(request: Request):
 
     # return {"status": "sent"}
 
-    data = await request.json()
-    print(data)
+ body = await request.body()
+
+    if not body:
+        print("Empty webhook received")
+        return {"status": "empty"}
+
+    try:
+        data = json.loads(body)
+        print("Webhook data:", data)
+    except Exception as e:
+        print("Invalid JSON:", body)
+        return {"status": "invalid json"}
+
     return {"status": "received"}
 
 
