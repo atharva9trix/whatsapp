@@ -36,8 +36,11 @@ def get_debug():
         "history": webhook_history
     }
 
+from datetime import datetime
+
 @app.post("/webhook")
 async def webhook(request: Request):
+
     try:
         data = await request.json()
     except Exception:
@@ -48,74 +51,55 @@ async def webhook(request: Request):
 
     # Store debug history
     webhook_history.insert(0, {
-        "time": str(logging.datetime.datetime.now()),
+        "time": str(datetime.now()),
         "data": data
     })
 
     if len(webhook_history) > 5:
         webhook_history.pop()
-            
-        logger.info(f"📥 WEBHOOK RECEIVED")
-    except Exception as e:
-        logger.error(f"❌ Failed to parse JSON: {e}")
-        return {"status": "error", "message": "Invalid JSON"}
 
-    # Relaxed event check - Evolutionary API sometimes sends different event names
+    # Event type
     event = data.get("event")
     logger.info(f"Event type: {event}")
 
-    # Check for messages.upsert or similar
     if "messages" not in str(event).lower():
         return {"status": "ignored", "reason": f"Not a message event ({event})"}
 
     # Extract message data
     message_data = data.get("data", {})
     key = message_data.get("key", {})
-    
-    # Ignore messages sent by the bot itself
+
     if key.get("fromMe"):
-        logger.info("ℹ️ Ignoring self message")
-        return {"status": "ignored", "reason": "Self message"}
+        logger.info("Ignoring self message")
+        return {"status": "ignored"}
 
     remote_jid = key.get("remoteJid", "")
+
     if not remote_jid:
-        return {"status": "error", "message": "No remoteJid found"}
+        return {"status": "error", "message": "No remoteJid"}
 
     recipient_number = remote_jid.split("@")[0]
-    
-    # Extract text content - try every possible location
+
     msg = message_data.get("message", {})
     incoming_text = ""
-    
+
     if msg:
         if "conversation" in msg:
             incoming_text = msg["conversation"]
         elif "extendedTextMessage" in msg:
             incoming_text = msg.get("extendedTextMessage", {}).get("text", "")
-        elif "imageMessage" in msg:
-            incoming_text = msg.get("imageMessage", {}).get("caption", "")
-        elif "videoMessage" in msg:
-            incoming_text = msg.get("videoMessage", {}).get("caption", "")
-        elif "buttonsResponseMessage" in msg:
-            incoming_text = msg.get("buttonsResponseMessage", {}).get("selectedButtonId", "")
-        elif "listResponseMessage" in msg:
-            incoming_text = msg.get("listResponseMessage", {}).get("title", "")
 
     if not incoming_text:
-        logger.info("ℹ️ No text content found in message structure")
         return {"status": "ignored", "reason": "No text content"}
 
-    logger.info(f"📩 MESSAGE FROM {recipient_number}: {incoming_text}")
+    logger.info(f"MESSAGE FROM {recipient_number}: {incoming_text}")
 
-    # Reply logic
     reply_text = f"Bot Received: {incoming_text}"
-    
-    # Send response
+
     success = send_message(recipient_number, reply_text)
-    
+
     return {
-        "status": "success" if success else "failed", 
-        "event": event,
+        "status": "success" if success else "failed",
         "recipient": recipient_number
     }
 
