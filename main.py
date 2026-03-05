@@ -123,7 +123,7 @@ logger = logging.getLogger(__name__)
 # Function to send WhatsApp message
 def send_message(number, text):
 
-    url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE}"
+    url = f"{EVOLUTION_API}/message/sendText/{INSTANCE}"
 
     headers = {
         "apikey": API_KEY,
@@ -140,6 +140,7 @@ def send_message(number, text):
 
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=15)
+        print("\n respo ", response)
 
         logger.info(f"EVOLUTION STATUS -> {response.status_code}")
         logger.info(f"EVOLUTION RESPONSE -> {response.text}")
