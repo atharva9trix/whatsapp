@@ -46,6 +46,10 @@ def home():
 @app.post("/webhook")
 async def webhook(request: Request):
 
+    logger.info("WEBHOOK HIT")
+
+    data = await request.json()
+    logger.info(f"Payload: {data}")
     # Safely read JSON
     try:
         data = await request.json()
