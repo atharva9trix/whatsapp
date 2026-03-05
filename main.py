@@ -105,10 +105,14 @@ import logging
 
 app = FastAPI()
 
-# Evolution API config
-EVOLUTION_URL = "http://whatsapp-1_evolution-api:8080"
-INSTANCE = "whatsappbot"
-API_KEY = "4EB3C96EBCB4-4CE2-864C-0FF043FB41EC"
+# # Evolution API config
+# EVOLUTION_URL = "http://whatsapp-1_evolution-api:8080"
+# INSTANCE = "whatsappbot"
+# API_KEY = "4EB3C96EBCB4-4CE2-864C-0FF043FB41EC"
+
+EVOLUTION_API = os.getenv("EVOLUTION_API_URL")
+API_KEY = os.getenv("EVOLUTION_API_KEY")
+INSTANCE = os.getenv("INSTANCE_NAME")
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
