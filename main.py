@@ -57,8 +57,8 @@ async def webhook(request: Request):
 
     event = data.get("event")
 
-    if event != "messages.upsert":
-        return {"ignored": "not message event"}
+    if "message" not in str(event).lower():
+        return {"ignored": True}
 
     message_data = data.get("data", {})
     key = message_data.get("key", {})
