@@ -4,7 +4,7 @@ import logging
 
 app = FastAPI()
 
-EVOLUTION_URL = "http://whatsapp-1-evolution-api:8080"
+EVOLUTION_URL = "https://whatsapp-1-evolution-api.n0r6ff.easypanel.host"
 INSTANCE = "whatsappbot"
 API_KEY = "4EB3C96EBCB4-4CE2-864C-0FF043FB41EC"
 
@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 def send_message(number, text):
-
     url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE}"
 
     headers = {
@@ -26,30 +25,42 @@ def send_message(number, text):
         "text": text
     }
 
-    response = requests.post(url, json=payload, headers=headers)
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
 
-    logger.info(f"Send status: {response.status_code}")
-    logger.info(response.text)
+        logger.info(f"Send status: {response.status_code}")
+        logger.info(f"Response: {response.text}")
+
+    except Exception as e:
+        logger.error(f"Failed to send message: {e}")
+
 
 @app.get("/")
 def home():
     return {"status": "bot running"}
 
+
 @app.post("/webhook")
 async def webhook(request: Request):
 
-    data = await request.json()
+    # Safely read JSON
+    try:
+        data = await request.json()
+    except Exception:
+        logger.warning("Webhook called without JSON body")
+        return {"status": "ignored", "reason": "invalid json"}
 
     logger.info(f"Webhook data: {data}")
 
     event = data.get("event")
 
     if event != "messages.upsert":
-        return {"ignored": True}
+        return {"ignored": "not message event"}
 
     message_data = data.get("data", {})
     key = message_data.get("key", {})
 
+    # Prevent bot replying to itself
     if key.get("fromMe"):
         return {"ignored": "self message"}
 
@@ -63,11 +74,12 @@ async def webhook(request: Request):
     msg = message_data.get("message", {})
     text = ""
 
+    # Extract text safely
     if "conversation" in msg:
-        text = msg["conversation"]
+        text = msg.get("conversation", "")
 
     elif "extendedTextMessage" in msg:
-        text = msg["extendedTextMessage"]["text"]
+        text = msg.get("extendedTextMessage", {}).get("text", "")
 
     if not text:
         return {"ignored": "no text"}
