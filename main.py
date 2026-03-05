@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_message(number, text):
+
     url = f"{EVOLUTION_URL}/message/sendText/{INSTANCE}"
 
     headers = {
@@ -25,15 +26,17 @@ def send_message(number, text):
         "text": text
     }
 
+    logger.info(f"SENDING MESSAGE -> {number}")
+    logger.info(f"PAYLOAD -> {payload}")
+
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=15)
 
-        logger.info(f"Send status: {response.status_code}")
-        logger.info(f"Response: {response.text}")
+        logger.info(f"EVOLUTION STATUS -> {response.status_code}")
+        logger.info(f"EVOLUTION RESPONSE -> {response.text}")
 
     except Exception as e:
-        logger.error(f"Failed to send message: {e}")
-
+        logger.error(f"SEND FAILED -> {e}")
 
 @app.get("/")
 def home():
