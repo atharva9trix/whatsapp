@@ -209,7 +209,7 @@ async def webhook(request: Request):
 
     send_message(number, reply)
 
-    return {"status": "processed"}/
+    return {"status": "processed"}
 
 
 
