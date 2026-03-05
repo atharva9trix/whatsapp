@@ -39,16 +39,21 @@ def get_debug():
 @app.post("/webhook")
 async def webhook(request: Request):
     try:
-        body = await request.body()
-        data = json.loads(body)
-        
-        # Store in history (keep last 5)
-        webhook_history.insert(0, {
-            "time": str(logging.datetime.datetime.now()),
-            "data": data
-        })
-        if len(webhook_history) > 5:
-            webhook_history.pop()
+        data = await request.json()
+    except Exception:
+        logger.warning("⚠️ Received webhook with no JSON body")
+        return {"status": "ignored", "reason": "Empty or invalid JSON"}
+
+    logger.info("📥 WEBHOOK RECEIVED")
+
+    # Store debug history
+    webhook_history.insert(0, {
+        "time": str(logging.datetime.datetime.now()),
+        "data": data
+    })
+
+    if len(webhook_history) > 5:
+        webhook_history.pop()
             
         logger.info(f"📥 WEBHOOK RECEIVED")
     except Exception as e:
