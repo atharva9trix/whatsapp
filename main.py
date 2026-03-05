@@ -31,6 +31,9 @@ def send_message(number, text):
     logger.info(f"Send status: {response.status_code}")
     logger.info(response.text)
 
+@app.get("/")
+def home():
+    return {"status": "bot running"}
 
 @app.post("/webhook")
 async def webhook(request: Request):
