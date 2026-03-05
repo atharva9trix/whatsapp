@@ -6,7 +6,7 @@ app = FastAPI()
 
 EVOLUTION_URL = "https://whatsapp-1-evolution-api.n0r6ff.easypanel.host"
 INSTANCE = "whatsappbot"
-API_KEY = "YOUR_API_KEY"
+API_KEY = "4EB3C96EBCB4-4CE2-864C-0FF043FB41EC"
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
