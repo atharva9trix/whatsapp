@@ -206,7 +206,7 @@ async def webhook(request: Request):
 
     # Bot reply
     reply = f"You said: {text}"
-
+    print("\nreply ", reply)
     send_message(number, reply)
 
     return {"status": "processed"}
